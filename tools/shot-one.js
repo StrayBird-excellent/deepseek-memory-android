@@ -1,0 +1,11 @@
+const { chromium } = require('playwright')
+const path = require('path')
+;(async () => {
+  const b = await chromium.launch({ channel: 'chromium' })
+  const p = await b.newPage({ viewport: { width: 1200, height: 620 }, deviceScaleFactor: 2 })
+  await p.goto('file:///' + path.resolve(__dirname, '../build/official-icons/grid20.html').replace(/\\/g, '/'))
+  await p.waitForTimeout(900)
+  await p.screenshot({ path: path.resolve(__dirname, '../build/official-icons/grid20.png') })
+  await b.close()
+  console.log('ok')
+})()

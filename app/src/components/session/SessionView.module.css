@@ -1,0 +1,77 @@
+.view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 60px;
+  padding: 12px 18px 0;
+  box-sizing: border-box;
+  background: var(--dsw-alias-bg-base);
+}
+
+.title {
+  max-width: 480px;
+  padding: 8px 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: var(--dsw-font-s-strong-14);
+  color: var(--dsw-alias-label-primary);
+}
+
+.withCollapsedSider {
+  margin-left: 113px;
+}
+
+/* 记忆入口贴在标题栏最右侧，与移动端顶栏的位置呼应 */
+.memoryButton {
+  margin-left: auto;
+  margin-right: 2px;
+}
+
+.inputContainer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: calc(var(--message-list-max-width) - 64px);
+  /* 官方输入容器左右各留 11dp，比正文留白更窄，形成"浮在下方的整块"观感 */
+  max-width: calc(100% - 22px);
+  margin: auto auto 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 30%,
+    var(--dsw-alias-bg-base) 30%,
+    var(--dsw-alias-bg-base) 100%
+  );
+}
+
+@media not all and (min-width: 768px) {
+  .inputContainer {
+    position: relative;
+    bottom: auto;
+    flex-shrink: 0;
+    margin: 0 auto;
+    padding-bottom: var(--safe-bottom, 0px);
+  }
+}
+
+/* native-shell mobile layout (auto-generated) */
+:global(html.native-shell) .inputContainer {
+    position: relative;
+    bottom: auto;
+    flex-shrink: 0;
+    margin: 0 auto;
+    padding-bottom: var(--safe-bottom, 0px);
+  }
+

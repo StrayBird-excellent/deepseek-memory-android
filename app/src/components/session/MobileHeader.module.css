@@ -1,0 +1,23 @@
+.header {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  /* 官方顶栏实测 47.7dp：比 Web 版的 60px 矮一截，视觉上更贴近原生 */
+  height: 48px;
+  padding: 0 4px;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  /* 官方标题起点距屏幕左缘 55dp，扣掉汉堡按钮与内边距后约 11dp */
+  margin: 0 11px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+}

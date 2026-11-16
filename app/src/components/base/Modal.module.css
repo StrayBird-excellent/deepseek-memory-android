@@ -1,0 +1,125 @@
+.overlay {
+  --overlay-opacity: 0.36;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, var(--overlay-opacity));
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+
+  [data-ds-dark-theme] & {
+    --overlay-opacity: 0.6;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  padding: 22px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-label-primary);
+  background-color: var(--dsw-alias-bg-layer-2);
+  box-shadow:
+    inset 0 0 0 1px var(--dsw-alias-border-inverted),
+    0 0 1px 0 rgba(0, 0, 0, 0.2),
+    0 0 4px 0 rgba(0, 0, 0, 0.02),
+    0 12px 32px 0 rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: var(--modal-header-gap, 12px);
+}
+
+.title {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+}
+
+.close {
+  margin-right: -10px;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.main {
+  color: var(--dsw-alias-label-secondary);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* ---------- 页面形态（设置等二级页）：铺满全屏，标题居中，左上角返回 ---------- */
+
+.pageOverlay {
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  background-color: var(--dsw-alias-bg-base);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.pageContent {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  padding: 0;
+  border-radius: 0;
+  background-color: var(--dsw-alias-bg-base);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.pageHeader {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  margin: 0;
+  padding: 0 8px;
+}
+
+.pageTitle {
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+}
+
+/* chevron 本身指向右，旋转 180 度作为返回箭头 */
+.back {
+  position: absolute;
+  left: 8px;
+  transform: rotate(180deg);
+}
+
+.pageMain {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0 calc(24px + var(--safe-bottom, 0px));
+}

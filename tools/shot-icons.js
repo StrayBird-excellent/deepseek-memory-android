@@ -1,0 +1,11 @@
+const { chromium } = require('playwright')
+const path = require('path')
+;(async () => {
+  const b = await chromium.launch({ channel: 'chromium' })
+  const p = await b.newPage({ viewport: { width: 1200, height: 2200 }, deviceScaleFactor: 2 })
+  await p.goto('file:///' + path.resolve(__dirname, '../build/official-icons/preview.html').replace(/\\/g, '/'))
+  await p.waitForTimeout(600)
+  await p.screenshot({ path: path.resolve(__dirname, '../build/official-icons/wall.png'), fullPage: true })
+  console.log('预览墙已截图')
+  await b.close()
+})()
