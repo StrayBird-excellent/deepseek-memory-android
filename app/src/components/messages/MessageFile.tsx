@@ -1,10 +1,10 @@
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslate } from '../../i18n/index.js'
 import { useUploads } from '../../services/attachments.js'
 import { loadFile } from '../../services/chat/db.js'
 import type { FileAttachment } from '../../services/chat/types.js'
-import { IconPhotoErrorFill20, IconRefreshOutline16 } from '../base/icons.js'
+import { IconCloseFill14, IconPhotoErrorFill20, IconRefreshOutline16 } from '../base/icons.js'
 import { Tooltip } from '../base/Tooltip.js'
 import { FileCard } from '../files/FileCard.js'
 import styles from './MessageFile.module.css'
@@ -50,10 +50,13 @@ const useUploadState = (file: FileAttachment) =>
 export const MessageFile = ({
   file,
   onRetry,
+  onRemove,
 }: {
   file: FileAttachment
   /** 本条消息补传失败且可重试时提供 */
   onRetry: (() => void) | null
+  /** 编辑消息时提供：删除该附件 */
+  onRemove?: () => void
 }) => {
   const t = useTranslate()
   const url = useFileUrl(file.id)
@@ -65,6 +68,19 @@ export const MessageFile = ({
   const errorText = failed ? t(upload.error.key, upload.error.params) : undefined
 
   const retry = retryable ? onRetry : null
+
+  // 图片不支持在缩略图里嵌按钮（图片本身是链接/按钮），编辑时用一层定位容器叠加删除按钮
+  const removable = (content: ReactNode) =>
+    onRemove ? (
+      <div className={styles.removable}>
+        {content}
+        <button type="button" className={styles.remove} aria-label={t('delete')} onClick={onRemove}>
+          <IconCloseFill14 />
+        </button>
+      </div>
+    ) : (
+      content
+    )
 
   if (file.isImage && url !== null) {
     const preview = url ? (
@@ -79,7 +95,7 @@ export const MessageFile = ({
 
     // 上传中：本地原件已在 IndexedDB，先垫在蒙层下显示，避免只有一块灰色占位
     if (uploading) {
-      return (
+      return removable(
         <div className={clsx(styles.image, styles.imageThumb)} title={file.name}>
           {preview}
           <div className={styles.overlay}>
@@ -97,7 +113,7 @@ export const MessageFile = ({
 
     // 上传失败不可重试：保留缩略图，底部渐变显示原因
     if (failed && !retry) {
-      return (
+      return removable(
         <div
           className={clsx(styles.image, styles.imageThumb)}
           title={errorText}
@@ -116,7 +132,7 @@ export const MessageFile = ({
     // 上传失败可重试：缩略图 + 红色描边 + 蒙层重试图标，原因在底部
     if (failed && retry) {
       const retryLabel = t('uploadRetry', { message: errorText ?? t('uploadFileStatusFailed') })
-      return (
+      return removable(
         <Tooltip content={retryLabel}>
           <button
             type="button"
@@ -135,19 +151,21 @@ export const MessageFile = ({
     }
 
     // 正常态：链接到原件
-    return url ? (
-      <a
-        className={clsx(styles.image, styles.imageThumb)}
-        href={url}
-        target="_blank"
-        rel="noreferrer"
-        title={file.name}
-      >
-        {preview}
-      </a>
-    ) : (
-      // 原件还没加载出来（极短暂）
-      <div className={styles.image} />
+    return removable(
+      url ? (
+        <a
+          className={clsx(styles.image, styles.imageThumb)}
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          title={file.name}
+        >
+          {preview}
+        </a>
+      ) : (
+        // 原件还没加载出来（极短暂）
+        <div className={styles.image} />
+      )
     )
   }
 
@@ -158,6 +176,7 @@ export const MessageFile = ({
       status={uploading ? 'uploading' : failed ? 'error' : 'done'}
       error={errorText}
       onRetry={retry ?? undefined}
+      onRemove={onRemove}
       onOpen={url && !upload ? () => window.open(url, '_blank', 'noreferrer') : undefined}
     />
   )

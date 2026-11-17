@@ -1,6 +1,5 @@
 export const zh = {
   welcomeMessageChat250808: '今天有什么可以帮到你？',
-  contentCaveat: '回答由 AI 生成，仅供参考',
   expandSiderbarButton: '打开边栏',
   collapseSiderbarButton: '收起边栏',
   newChat: '开启新对话',
@@ -89,6 +88,7 @@ export const zh = {
   settingsTtsVoice: '朗读音色',
   settingsTtsVoiceStella: '海星（女声）',
   settingsTtsVoiceTide: '暗潮（男声）',
+  settingsVersion: '版本',
   settingDialogAsideGeneralOptionLabel: '通用设置',
   settingDialogAsideDataOptionLabel: '数据管理',
   avatarMenuSettingsDialogThemeItemLabel: '主题',

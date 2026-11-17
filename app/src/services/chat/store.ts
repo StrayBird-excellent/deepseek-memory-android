@@ -649,8 +649,13 @@ export const regenerateReply = (sessionId: string, messageId?: string) => {
   void streamReply(sessionId, reply, { history, question })
 }
 
-/** 编辑提问后新增同父版本，保留原文件；旧问题的所有回答与后续对话仍可切回。 */
-export const editMessage = (sessionId: string, messageId: string, content: string): boolean => {
+/** 编辑提问后新增同父版本，附件可增删；旧问题的所有回答与后续对话仍可切回。 */
+export const editMessage = (
+  sessionId: string,
+  messageId: string,
+  content: string,
+  files: FileAttachment[]
+): boolean => {
   if (get().importingHistory || deletingSessions.has(sessionId)) {
     return false
   }
@@ -662,14 +667,14 @@ export const editMessage = (sessionId: string, messageId: string, content: strin
   const index = path.findIndex((message) => message.id === messageId)
   const previous = path[index]
   const text = content.trim()
-  if (previous?.role !== 'user' || (!text && previous.files.length === 0)) {
+  if (previous?.role !== 'user' || (!text && files.length === 0)) {
     return false
   }
   const question: UserMessage = {
     id: createId(),
     role: 'user',
     content: text,
-    files: previous.files,
+    files,
     createdAt: Date.now(),
   }
   const reply = createReply()

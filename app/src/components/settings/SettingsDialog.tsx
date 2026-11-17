@@ -49,6 +49,10 @@ export const SettingsDialog = () => {
 /** 二维码随构建复制到站点根目录；用相对路径同时兼容 Capacitor 与浏览器直开 */
 const DONATE_QR = './donate-qrcode.jpg'
 
+/** 版本号由构建时写入 meta，与 Android 的 versionName 保持一致 */
+const APP_VERSION =
+  document.querySelector<HTMLMetaElement>('meta[name="application-version"]')?.content ?? ''
+
 const sections: { value: SettingsSection; label: TranslationKey; icon: ReactNode }[] = [
   { value: 'general', label: 'settingDialogAsideGeneralOptionLabel', icon: <IconSettingsOutline16 /> },
   { value: 'account', label: 'account', icon: <IconUserOutline16 /> },
@@ -104,6 +108,11 @@ const SettingsContent = () => {
               <LocaleSetting />
               <TtsVoiceSetting />
               <DonateSetting onClick={() => setDonateOpen(true)} />
+              <SettingCell
+                label={t('settingsVersion')}
+                status={null}
+                action={<span className={styles.version}>{APP_VERSION}</span>}
+              />
             </>
           ) : (
             <>

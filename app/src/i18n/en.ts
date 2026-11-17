@@ -2,7 +2,6 @@ import type { zh } from './zh.js'
 
 export const en = {
   welcomeMessageChat250808: 'How can I help you?',
-  contentCaveat: 'AI-generated, for reference only',
   expandSiderbarButton: 'Open sidebar',
   collapseSiderbarButton: 'Close sidebar',
   newChat: 'New chat',
@@ -94,6 +93,7 @@ export const en = {
   settingsTtsVoice: 'Read-aloud voice',
   settingsTtsVoiceStella: 'Stella (female)',
   settingsTtsVoiceTide: 'Tide (male)',
+  settingsVersion: 'Version',
   settingDialogAsideGeneralOptionLabel: 'General',
   settingDialogAsideDataOptionLabel: 'Data',
   avatarMenuSettingsDialogThemeItemLabel: 'Theme',

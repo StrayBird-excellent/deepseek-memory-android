@@ -1,6 +1,8 @@
 declare const styles: {
   readonly "image": string;
   readonly "imageThumb": string;
+  readonly "removable": string;
+  readonly "remove": string;
   readonly "failedIcon": string;
   readonly "retryImage": string;
   readonly "overlay": string;

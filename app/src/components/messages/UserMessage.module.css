@@ -7,10 +7,6 @@
   &.isFirst {
     padding-top: 34px;
   }
-
-  &:hover .actions {
-    opacity: 1;
-  }
 }
 
 .files {
@@ -58,16 +54,6 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  opacity: 0;
-  transition: opacity var(--ds-transition-duration) var(--ds-ease-in-out);
-
-  &:focus-within {
-    opacity: 1;
-  }
-}
-
-.alwaysShow {
-  opacity: 1;
 }
 
 .editor {
@@ -102,25 +88,4 @@
   gap: 8px;
   margin: 6px 10px 10px;
 }
-
-/*
- * 移动端（含原生壳）保留复制 / 编辑按钮。
- *
- * 这里曾经用 display:none 隐藏按钮、打算靠长按调用，但长按交互并未实现，
- * 结果导致安卓端编辑重发功能完全不可用。触屏上按钮常显是最可靠的入口：
- * 不依赖长按手势，也不会与系统的文本选择、中文输入法争抢事件。
- */
-@media not all and (min-width: 768px) {
-  .actions {
-    display: flex;
-    /* 触屏没有 hover，按钮必须常显否则用户找不到入口 */
-    opacity: 1;
-  }
-}
-
-/* native-shell mobile layout (auto-generated) */
-:global(html.native-shell) .actions {
-    display: flex;
-    opacity: 1;
-  }
 

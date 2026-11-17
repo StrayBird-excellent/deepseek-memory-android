@@ -47,8 +47,6 @@ export const SessionView = ({
         footer={
           <div className={styles.inputContainer}>
             <ChatInput sessionId={session.id} />
-            {/* AI 生成内容提示：与官方一致，审核合规需要保留 */}
-            <div className={styles.caveat}>{t('contentCaveat')}</div>
           </div>
         }
       />

@@ -16,18 +16,6 @@
   padding: 0 32px 64px;
 }
 
-/* AI 生成内容提示；移动端布局下需要固定高度避免被压缩 */
-.caveat {
-  flex-shrink: 0;
-  width: 100%;
-  padding: 6px 0;
-  font-size: 11px;
-  line-height: 16px;
-  text-align: center;
-  color: var(--dsw-alias-label-tertiary);
-  user-select: none;
-}
-
 .greeting {
   display: flex;
   align-items: center;

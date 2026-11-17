@@ -19,6 +19,7 @@ declare const styles: {
   readonly "themeOption": string;
   readonly "themeOptionSelected": string;
   readonly "description": string;
+  readonly "version": string;
   readonly "error": string;
   readonly "apiKey": string;
   readonly "apiKeySaved": string;

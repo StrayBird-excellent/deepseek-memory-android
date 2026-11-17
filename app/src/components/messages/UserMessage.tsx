@@ -23,7 +23,6 @@ export const UserMessage = memo(function UserMessage({
   message,
   retryUploadId,
   isFirst,
-  isLast,
   busy,
   versions,
   onSelectVersion,
@@ -33,7 +32,6 @@ export const UserMessage = memo(function UserMessage({
   /** 回答因补传附件失败可重试时为该回答 id */
   retryUploadId: string | null
   isFirst: boolean
-  isLast: boolean
   busy: boolean
   versions: MessageVersions
   onSelectVersion: SelectMessageVersion
@@ -41,9 +39,12 @@ export const UserMessage = memo(function UserMessage({
   const t = useTranslate()
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(message.content)
+  // 编辑时附件可单独删除；取消编辑直接丢弃，不影响已发送的消息
+  const [editFiles, setEditFiles] = useState(message.files)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const isMobile = useIsMobile()
-  const canSend = !busy && (draft.trim() !== '' || message.files.length > 0)
+  const files = editing ? editFiles : message.files
+  const canSend = !busy && (draft.trim() !== '' || files.length > 0)
 
   useLayoutEffect(() => {
     const textarea = textareaRef.current
@@ -54,7 +55,11 @@ export const UserMessage = memo(function UserMessage({
   }, [editing, draft])
 
   const sendEdit = () => {
-    if (canSend && ensureApiKey() && editMessage(sessionId, message.id, draft.trim())) {
+    if (
+      canSend &&
+      ensureApiKey() &&
+      editMessage(sessionId, message.id, draft.trim(), editFiles)
+    ) {
       stopReadAloud()
       setEditing(false)
     }
@@ -62,18 +67,23 @@ export const UserMessage = memo(function UserMessage({
 
   return (
     <div className={clsx(styles.container, isFirst && styles.isFirst)}>
-      {message.files.length > 0 ? (
+      {files.length > 0 ? (
         <div
           className={clsx(
             styles.files,
-            message.files.some((file) => !file.isImage) && styles.filesWithDocuments
+            files.some((file) => !file.isImage) && styles.filesWithDocuments
           )}
         >
-          {message.files.map((file) => (
+          {files.map((file) => (
             <MessageFile
               key={file.id}
               file={file}
               onRetry={retryUploadId ? () => retryUpload(sessionId, retryUploadId) : null}
+              onRemove={
+                editing
+                  ? () => setEditFiles((current) => current.filter((item) => item.id !== file.id))
+                  : undefined
+              }
             />
           ))}
         </div>
@@ -114,7 +124,7 @@ export const UserMessage = memo(function UserMessage({
         <>
           {message.content ? <div className={styles.bubble}>{message.content}</div> : null}
           <div className={styles.bottom}>
-            <div className={clsx(styles.actions, isLast && styles.alwaysShow)}>
+            <div className={styles.actions}>
               {message.content ? <CopyButton text={message.content} /> : null}
               <IconButton
                 icon={<IconEditOutline16 />}
@@ -123,6 +133,7 @@ export const UserMessage = memo(function UserMessage({
                 disabled={busy}
                 onClick={() => {
                   setDraft(message.content)
+                  setEditFiles(message.files)
                   setEditing(true)
                 }}
               />

@@ -14,7 +14,6 @@ export const Welcome = () => {
       <div className={styles.welcome}>
         <div className={styles.greeting}>{t('welcomeMessageChat250808')}</div>
         <ChatInput sessionId={null} />
-        <div className={styles.caveat}>{t('contentCaveat')}</div>
       </div>
     </div>
   )

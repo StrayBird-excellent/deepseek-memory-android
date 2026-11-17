@@ -28,6 +28,32 @@
   container-type: inline-size;
 }
 
+/* 编辑消息时包住缩略图，给删除按钮提供定位参照 */
+.removable {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  color: var(--dsw-alias-label-primary-inverted);
+  background-color: var(--dsw-alias-button-contrast-fill);
+  filter: drop-shadow(0 0 0.5px rgba(0, 0, 0, 0.2));
+  cursor: pointer;
+}
+
 button.image {
   cursor: pointer;
 }
