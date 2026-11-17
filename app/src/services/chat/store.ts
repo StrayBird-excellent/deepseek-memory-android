@@ -654,7 +654,8 @@ export const editMessage = (
   sessionId: string,
   messageId: string,
   content: string,
-  files: FileAttachment[]
+  files: FileAttachment[],
+  newBlobs: { id: string; blob: Blob }[] = []
 ): boolean => {
   if (get().importingHistory || deletingSessions.has(sessionId)) {
     return false
@@ -682,6 +683,9 @@ export const editMessage = (
     ...appendBranch(s, path[index - 1]?.id ?? null, [question, reply]),
     updatedAt: Date.now(),
   }))
+  if (newBlobs.length > 0) {
+    pendingFiles.set(sessionId, [...(pendingFiles.get(sessionId) ?? []), ...newBlobs])
+  }
   persist(sessionId)
   void streamReply(sessionId, reply, { history: path.slice(0, index), question })
   return true

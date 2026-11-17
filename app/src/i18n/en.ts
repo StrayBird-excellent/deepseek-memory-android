@@ -145,6 +145,13 @@ export const en = {
   chatInputStopButtonTooltip: 'Stop',
   uploadMaxMBSize: 'File exceeds the size limit ({size} MB). Please adjust and try again.',
   uploadMaxFiles: 'You can upload up to {count} files',
+  longInputTitle: 'Input may exceed the limit',
+  longInputBody:
+    'This request is estimated at about {tokens} tokens, close to the server’s current single-request limit of about {limit} tokens (history, memory and attachment text all count). Sending may be rejected. Split the text or attachments, or start a new conversation.',
+  longInputBack: 'Back to edit',
+  longInputSendAnyway: 'Send anyway',
+  modelImageUnsupported:
+    'The current model does not support images. Switch to Flash or remove the image.',
   uploadFileStatusUploading: 'Uploading...',
   uploadServerBusy: 'Server busy',
   uploadParseFailed: 'Parsing failed',
@@ -232,5 +239,4 @@ export const en = {
   attachmentAlbum: 'Album',
   attachmentFile: 'File',
   attachmentHint: 'Camera & album accept images; files support documents, code, sheets and more',
-
 } satisfies Record<keyof typeof zh, string>

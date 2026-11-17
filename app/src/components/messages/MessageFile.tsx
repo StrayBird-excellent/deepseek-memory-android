@@ -51,15 +51,19 @@ export const MessageFile = ({
   file,
   onRetry,
   onRemove,
+  previewUrl,
 }: {
   file: FileAttachment
   /** 本条消息补传失败且可重试时提供 */
   onRetry: (() => void) | null
   /** 编辑消息时提供：删除该附件 */
   onRemove?: () => void
+  /** 编辑时新增附件的内存预览；原件还没写入 IndexedDB 时使用 */
+  previewUrl?: string
 }) => {
   const t = useTranslate()
-  const url = useFileUrl(file.id)
+  const storedUrl = useFileUrl(file.id)
+  const url = previewUrl ?? storedUrl
   const [failedUrl, setFailedUrl] = useState<string | null>(null)
   const upload = useUploadState(file)
   const uploading = upload?.status === 'uploading'

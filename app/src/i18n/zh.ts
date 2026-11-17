@@ -137,6 +137,12 @@ export const zh = {
   chatInputStopButtonTooltip: '停止生成',
   uploadMaxMBSize: '单个文件大小超过限制（{size}MB），请调整后重试',
   uploadMaxFiles: '上传文件最多支持 {count} 个',
+  longInputTitle: '输入可能超过上限',
+  longInputBody:
+    '本次请求预计约 {tokens} token，接近服务端当前约 {limit} token 的单次输入上限（历史、记忆和附件文本都会计入）。继续发送可能被拒绝。建议拆分文本或附件，或新开对话后再试。',
+  longInputBack: '返回修改',
+  longInputSendAnyway: '仍然发送',
+  modelImageUnsupported: '当前模型不支持图片输入，请切换到 Flash 或移除图片',
   uploadFileStatusUploading: '上传中...',
   uploadServerBusy: '服务器繁忙',
   uploadParseFailed: '解析失败',
@@ -220,5 +226,4 @@ export const zh = {
   attachmentAlbum: '相册',
   attachmentFile: '文件',
   attachmentHint: '拍照与相册仅支持图片，文件支持文档 / 代码 / 表格等常见格式',
-
 } as const

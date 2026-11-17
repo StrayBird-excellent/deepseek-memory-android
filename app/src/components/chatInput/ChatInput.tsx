@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { memo, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   IconGlobeLanguageOutline14,
   IconSendOutline16,
@@ -9,6 +9,8 @@ import {
 import { setSearch, setThinking, useSettings } from '../../services/settings.js'
 import { useIsMobile } from '../../app/viewport.js'
 import { sendMessage, stopReply, useChatStore } from '../../services/chat/store.js'
+import { getVisibleMessages } from '../../services/chat/branches.js'
+import { estimateRequestTokens, LONG_INPUT_WARN_TOKENS } from '../../services/chat/preflight.js'
 import {
   addDraftFiles,
   EMPTY_DRAFT,
@@ -24,9 +26,10 @@ import { Tooltip } from '../base/Tooltip.js'
 import { ensureApiKey } from '../settings/settingsDialogState.js'
 import { DragMask, useFileDrop } from './DragMask.js'
 import { showToast } from '../base/toastState.js'
-import { useUploads } from '../../services/attachments.js'
+import { isImage, resolveMimeType, useUploads } from '../../services/attachments.js'
 import { AttachmentMenu } from './AttachmentMenu.js'
 import { DraftAttachments } from './DraftAttachments.js'
+import { LongInputWarning } from './LongInputWarning.js'
 import { useVoiceInput } from './useVoiceInput.js'
 import { VoiceButton } from './VoiceButton.js'
 import { Spectrum } from './Spectrum.js'
@@ -83,6 +86,13 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
     if (files.length === 0 || useChatStore.getState().importingHistory || !ensureApiKey()) {
       return
     }
+    if (
+      useSettings.getState().model === 'deepseek-v4-pro' &&
+      files.some((file) => isImage(resolveMimeType(file)))
+    ) {
+      showToast({ key: 'modelImageUnsupported' })
+      return
+    }
     const error = addDraftFiles(sessionId, files, useSettings.getState().apiKey ?? '')
     if (error) {
       showToast(error)
@@ -137,16 +147,43 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
   // 排队、上传中或上传失败的附件都留在输入框，全部上传成功后才能发送
   const canSend = !importingHistory && !streaming && voice.status === 'idle' && draftReady
 
-  const send = () => {
-    if (
-      useChatStore.getState().importingHistory ||
-      voice.status !== 'idle' ||
-      !prepareDraftMessage(getDraft(sessionId), useUploads.getState().tasks)
-    ) {
+  const [lengthWarning, setLengthWarning] = useState<number | null>(null)
+  const pendingSendRef = useRef<(() => void) | null>(null)
+
+  const send = (force = false) => {
+    if (useChatStore.getState().importingHistory || voice.status !== 'idle') {
       return
     }
     // 文本与上传完成态由提交动作读取最新快照，不使用上一次渲染的草稿。
-    if (!ensureApiKey() || !sendMessage(sessionId)) {
+    const prepared = prepareDraftMessage(getDraft(sessionId), useUploads.getState().tasks)
+    if (!prepared || !ensureApiKey()) {
+      return
+    }
+    if (
+      useSettings.getState().model === 'deepseek-v4-pro' &&
+      prepared.files.some((file) => file.isImage)
+    ) {
+      showToast({ key: 'modelImageUnsupported' })
+      return
+    }
+    if (!force) {
+      const state = useChatStore.getState()
+      const session = sessionId === null ? undefined : state.sessionCache[sessionId]
+      const tokens = estimateRequestTokens({
+        history: session ? getVisibleMessages(session) : [],
+        text: prepared.text,
+        files: prepared.files,
+        includeMemory: sessionId !== null,
+      })
+      if (tokens >= LONG_INPUT_WARN_TOKENS) {
+        // 先收起键盘，避免提示弹层后面还在继续输入
+        textareaRef.current?.blur()
+        pendingSendRef.current = () => send(true)
+        setLengthWarning(tokens)
+        return
+      }
+    }
+    if (!sendMessage(sessionId)) {
       return
     }
     stopReadAloud()
@@ -155,6 +192,17 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
     } else {
       textareaRef.current?.focus()
     }
+  }
+
+  const closeLengthWarning = () => {
+    pendingSendRef.current = null
+    setLengthWarning(null)
+  }
+
+  const confirmLongSend = () => {
+    const pending = pendingSendRef.current
+    closeLengthWarning()
+    pending?.()
   }
 
   return (
@@ -185,8 +233,13 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
               event.currentTarget.focus({ preventScroll: true })
             }
           }}
+          enterKeyHint={isMobile ? 'enter' : 'send'}
           onKeyDown={(event) => {
-            if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+            // 手机没有 Shift：回车必须留给换行，发送只走按钮。
+            if (isMobile || event.repeat || event.nativeEvent.isComposing) {
+              return
+            }
+            if (event.key === 'Enter' && !event.shiftKey) {
               event.preventDefault()
               send()
             }
@@ -244,8 +297,8 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
           {/*
             右侧只占两个位置，和官方一致：
             录音中 → 语音按钮（带计时）；生成中 → 停止；
-            有文字 → 发送；空输入 → 语音。
-            之前发送按钮常驻，360dp 宽度下把两个功能胶囊的文字挤没了。
+            有文字或附件 → 发送；空输入 → 语音。
+            手机端回车换行，发送只走这个按钮，所以仅有附件时也必须露出。
           */}
           {voice.status !== 'idle' ? (
             <VoiceButton
@@ -273,13 +326,13 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
             >
               <IconStopFill16 />
             </button>
-          ) : text.trim() ? (
+          ) : text.trim() || attachments.length > 0 ? (
             <button
               type="button"
               className={clsx(styles.sendButton, !canSend && styles.disabled)}
               aria-label={t('send')}
               aria-disabled={!canSend}
-              onClick={send}
+              onClick={() => send()}
             >
               <IconSendOutline16 />
             </button>
@@ -301,6 +354,13 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
         </div>
       </div>
       {dragging ? <DragMask /> : null}
+      {lengthWarning !== null ? (
+        <LongInputWarning
+          tokens={lengthWarning}
+          onCancel={closeLengthWarning}
+          onConfirm={confirmLongSend}
+        />
+      ) : null}
     </div>
   )
 }

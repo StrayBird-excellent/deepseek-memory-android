@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { LinkedMessage, TranslationMessage } from '../i18n/index.js'
-import { uploadFile } from './api/client.js'
+import { deleteFile, uploadFile } from './api/client.js'
 import { classifyApiError, getUploadErrorInfo, isRetryableApiError } from './api/errors.js'
 import type { FilePurpose } from './api/types.js'
 import { ACCEPT_FILE_EXTS } from './uploadExts.js'
@@ -208,6 +208,18 @@ export const uploadAttachment = (
 export const cancelUpload = (id: string) => {
   pending.get(id)?.controller.abort()
   setTask(id, null)
+}
+
+/**
+ * 丢弃一个尚未发送的新附件：中止上传，已上传成功的再尽力删除服务端文件。
+ * 删除失败不提示，最坏只留下一个远端孤儿；旧分支仍在引用的附件不能用这个函数。
+ */
+export const discardAttachment = (id: string, apiKey: string | null) => {
+  const task = useUploads.getState().tasks[id]
+  cancelUpload(id)
+  if (task?.status === 'done' && apiKey) {
+    void deleteFile(apiKey, task.serverId).catch(() => {})
+  }
 }
 
 /** 各扩展名对应的 MIME：部分系统（如 Windows）给不出 file.type，按扩展名补齐 */
