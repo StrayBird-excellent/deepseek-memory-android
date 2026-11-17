@@ -121,3 +121,14 @@
   color: var(--dsw-alias-label-primary-foreground);
   background-color: var(--dsw-alias-state-error-primary);
 }
+
+/* 触屏无 hover：上传成功的文档附件删除按钮必须常显，否则删不掉 */
+@media not all and (min-width: 768px) {
+  .remove {
+    opacity: 1;
+  }
+}
+
+:global(html.native-shell) .remove {
+  opacity: 1;
+}

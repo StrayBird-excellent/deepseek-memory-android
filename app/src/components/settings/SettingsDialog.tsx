@@ -19,6 +19,7 @@ import {
 } from '../../services/chat/backup.js'
 import { useIsMobile } from '../../app/viewport.js'
 import { useChatStore } from '../../services/chat/store.js'
+import { saveExportedFile } from '../../services/chat/saveExport.js'
 import {
   setLocale,
   setThemePreference,
@@ -508,12 +509,9 @@ const ExportHistory = ({ disabled }: { disabled: boolean }) => {
     setStatus(null)
     try {
       const { name, blob } = await exportHistory()
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = name
-      link.click()
-      setTimeout(() => URL.revokeObjectURL(url), 10_000)
+      // 原生壳内 WebView 不支持 blob 下载，必须走系统保存对话框
+      const savedName = await saveExportedFile(name, blob)
+      setStatus({ key: 'historyExportSuccess', params: { name: savedName } })
     } catch (error) {
       setStatus(errorStatus('historyExportFailed', error))
     } finally {

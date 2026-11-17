@@ -104,6 +104,21 @@
   opacity: 1;
 }
 
+/*
+ * 触屏（含原生壳）没有 hover，除最后一条外的历史回答，
+ * 复制/朗读/重新生成按钮会一直停在 opacity:0，用户无从发现。
+ * 与 UserMessage.module.css 的处理保持一致：移动端常显。
+ */
+@media not all and (min-width: 768px) {
+  .actions {
+    opacity: 1;
+  }
+}
+
+:global(html.native-shell) .actions {
+  opacity: 1;
+}
+
 .continueButton {
   margin-left: auto;
 }

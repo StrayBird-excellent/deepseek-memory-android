@@ -31,6 +31,9 @@ public class MainActivity extends BridgeActivity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    // 注册导出用的原生插件：系统「保存文件」对话框
+    registerPlugin(FileSaverPlugin.class);
+
     // 页面每次加载完成后重新下发一次，避免导航重建 documentElement 的内联样式
     getBridge()
         .addWebViewListener(
